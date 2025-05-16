@@ -1,0 +1,9 @@
+
+[paths]
+employee_data = "data/employee_master.xlsx"
+leave_data = "data/HRMS_Leave.xlsx"
+sales_data = "data/Sales_INR.xlsx"
+
+[theme]
+primary_color = "#2C3E50"
+secondary_color = "#f4f4f9"
