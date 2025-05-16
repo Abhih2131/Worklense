@@ -1,8 +1,61 @@
 
 import streamlit as st
+import pandas as pd
+from datetime import datetime
 
-def render_report(employee_df, leave_df, sales_df):
+def render_report(employee_df):
     st.title("📊 People Snapshot")
-    st.write("Employee Records:", employee_df.shape[0])
-    st.write("Leave Records:", leave_df.shape[0])
-    st.write("Sales Records:", sales_df.shape[0])
+
+    # Setting up the current fiscal year range (April 1, 2025 to today)
+    current_fy_start = datetime(2025, 4, 1)
+    today = datetime.today()
+
+    # Filtering active employees (No exit date)
+    active_employees = employee_df[(employee_df['date_of_exit'].isna()) & (employee_df['date_of_joining'].notna())]
+
+    # Calculating KPIs based on active employees
+    total_active_employees = len(active_employees)
+
+    # New Hires (This FY - regardless of active status)
+    new_hires = employee_df[(employee_df['date_of_joining'] >= current_fy_start) & (employee_df['date_of_joining'] <= today)]
+    total_new_hires = len(new_hires)
+
+    # Exits (This FY - regardless of active status)
+    exits = employee_df[(employee_df['date_of_exit'] >= current_fy_start) & (employee_df['date_of_exit'] <= today)]
+    total_exits = len(exits)
+
+    # Average CTC for active employees only
+    average_ctc = active_employees['total_ctc_pa'].mean()
+
+    # Average Tenure for active employees
+    active_employees['tenure_years'] = (today - active_employees['date_of_joining']).dt.days / 365
+    average_tenure = active_employees['tenure_years'].mean()
+
+    # Average Age for active employees
+    active_employees['age_years'] = (today - active_employees['date_of_birth']).dt.days / 365
+    average_age = active_employees['age_years'].mean()
+
+    # Average Total Experience for active employees
+    average_experience = active_employees['total_exp_yrs'].mean()
+
+    # Promotion Percentage for active employees (This FY)
+    promotions_this_fy = active_employees[
+        (active_employees['last_promotion'].notna()) & 
+        (pd.to_datetime(active_employees['last_promotion'], errors='coerce') >= current_fy_start) & 
+        (pd.to_datetime(active_employees['last_promotion'], errors='coerce') <= today)
+    ]
+    promotion_percentage = (len(promotions_this_fy) / total_active_employees) * 100 if total_active_employees > 0 else 0
+
+    # Displaying KPIs in two rows (4 in each row)
+    st.markdown("### Key Performance Indicators (KPIs)")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Active Employees", f"{total_active_employees:,}")
+    col2.metric("New Hires (This FY)", f"{total_new_hires:,}")
+    col3.metric("Exits (This FY)", f"{total_exits:,}")
+    col4.metric("Average CTC (Active)", f"₹ {average_ctc:,.2f}")
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Average Tenure (Active)", f"{average_tenure:.2f} Years")
+    col2.metric("Average Age (Active)", f"{average_age:.2f} Years")
+    col3.metric("Average Total Experience (Active)", f"{average_experience:.2f} Years")
+    col4.metric("Promotion Percentage (This FY)", f"{promotion_percentage:.2f} %")
