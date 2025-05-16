@@ -8,23 +8,35 @@ def apply_kpi_style():
         .kpi-container {
             background-color: #ffffff;
             padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
-            margin-bottom: 15px;
-            width: 180px;
-            height: 100px;
+            width: 220px;
+            height: 130px;
             display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px;
+        }
+        .kpi-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
         }
         .kpi-value {
             font-size: 28px;
             font-weight: bold;
-            color: #2C3E50;
-            margin-bottom: 4px;
+            color: #1A1A1A;
+            margin-bottom: 5px;
         }
         .kpi-label {
-            font-size: 12px;
+            font-size: 14px;
             color: #6c757d;
+            text-transform: uppercase;
+        }
+        .kpi-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
         </style>
         ''',
@@ -45,7 +57,7 @@ def format_number_indian_style(value):
     except:
         return value
 
-def render_kpi(label, value, unit="", color="#2C3E50"):
+def render_kpi(label, value, unit="", color="#1A1A1A"):
     value = format_number_indian_style(value)
     st.markdown(
         f"<div class='kpi-container'>"
